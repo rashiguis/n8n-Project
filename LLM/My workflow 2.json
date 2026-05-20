@@ -1,0 +1,210 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        48
+      ],
+      "id": "6e322163-b8d7-4639-8f96-1ccef0b9462b",
+      "name": "Telegram Trigger",
+      "webhookId": "fd83e6fc-b855-421d-b7d6-4fc6ee91b048",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}{{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=ou are an expert Executive Assistant. Your task is to analyze the following email content and provide a concise, structured report.\n\nEmail Content to Analyze:\n{{ $json.body }}\n(Note: Replace the variable above with the actual mapping from your Gmail/Outlook node)\n\nRequired Report Format:\nPlease format your response using Markdown with the following sections:\n\nExecutive Summary: A 1-2 sentence overview of what the email is about.\n\nKey Details:\n\nSender: [Name/Company]\n\nSentiment: [Positive / Neutral / Urgent / Negative]\n\nMain Topic: [Briefly state the core subject]\n\nAction Items: A bulleted list of specific tasks or requests mentioned. If no actions are required, state \"None.\"\n\nDeadlines/Dates: Mention any specific dates or times found in the text.\n\nProposed Next Step: Suggest the best way for me to respond or handle this.\n\nand \nYou are an expert Executive Assistant. Based on the summary provided below, write a professional, concise email reply.\n\nContext (The Summary of the Email):\n{{ $json[\"Executive Summary\"] }}\nAction Items identified: {{ $json[\"Action Items\"] }}\n\nInstructions for the Reply:\nTone: Professional, helpful, and brief.\n\nStructure: >    * Acknowledge the receipt of the email.\n\nAddress the Action Items directly (either confirming they are being worked on or asking for clarification).\n\nReference any Deadlines mentioned.\n\nDrafting Rules: >    * Do not use placeholders like \"[Your Name]\" if you can avoid it—keep it ready to send.\n\nKeep the subject line relevant (e.g., \"Re: [Main Topic]\").\n\nOutput Format:\nPlease provide the output in two parts:\nSubject: [Your suggested subject line]\nBody: [The full text of the email reply]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        16
+      ],
+      "id": "9710d57a-018d-4d0a-8a79-64d01bd4bc1d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        272
+      ],
+      "id": "63864d06-eaed-4976-adc4-463657a0a3f1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        272
+      ],
+      "id": "99ef17c4-b070-4a68-9677-e8dcce226f44",
+      "name": "Get many messages in Gmail",
+      "webhookId": "c907960e-6223-483f-8189-f8fb64d2747b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        -32
+      ],
+      "id": "d8d83a6c-1479-4dba-8fdb-76cb715fa3d4",
+      "name": "Send a text message",
+      "webhookId": "3b13e364-896c-4863-8849-9996e97f9f25",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        288
+      ],
+      "id": "2ef3452a-6d47-430c-a848-fb587489b6d6",
+      "name": "Send a message in Gmail",
+      "webhookId": "19f57c4f-2db4-4dd6-9117-540968513225",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "63891aa5-1273-4577-8717-90cbe81f999d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e6d783760feef931fe1ae388ec4d9afaebd2f6a94e61fc029bc8c4ab77883a9c"
+  },
+  "id": "HatpQjF7lw8oHWAS",
+  "tags": []
+}
